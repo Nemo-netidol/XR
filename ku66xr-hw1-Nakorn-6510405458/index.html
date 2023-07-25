@@ -1,0 +1,762 @@
+<!-- 
+  XR Homework 1
+  Nakorn Boonprasong
+  6510405458
+ -->
+
+
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>A-Frame AR.js</title>
+    <meta charset="utf-8" />
+    <script src="https://aframe.io/releases/1.0.4/aframe.min.js"></script>
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <script>
+      let marker_visible = { m0: false, m1: false, m2: false, m3: false, m4: false, m5: false };
+
+      AFRAME.registerComponent("marker-events", {
+        init: function () {
+          let el = this.el;
+
+          el.addEventListener("markerFound", function () {
+            marker_visible[el.id] = true;
+            console.log(el.id + " found");
+          });
+
+          el.addEventListener("markerLost", function () {
+            marker_visible[el.id] = false;
+            console.log(el.id + " lost");
+          });
+        }
+      });
+      
+      
+
+      
+      AFRAME.registerComponent("draw-scene", {
+  init: function () {
+    this.testModel = document.querySelector("#scene").object3D;
+    this.sceneRoot = new THREE.Object3D();
+    this.sceneRoot.add(this.testModel);
+
+    this.where = document.querySelector("#here").object3D;
+    this.where.add(this.sceneRoot);
+    this.sceneRoot.visible = false;
+
+    // p0
+    this.p0 = document.querySelector("#p0").object3D;
+    this.p0.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0)); // translate
+    this.p0.applyMatrix(new THREE.Matrix4().makeRotationX(THREE.Math.degToRad(0)));
+    this.p0.applyMatrix(new THREE.Matrix4().makeRotationY(THREE.Math.degToRad(0)));
+    this.p0.applyMatrix(new THREE.Matrix4().makeRotationZ(THREE.Math.degToRad(-90)));
+
+    // p1
+    this.p1 = document.querySelector("#p1").object3D;
+    this.p1.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0)); // translate
+    this.p1.applyMatrix(new THREE.Matrix4().makeRotationX(THREE.Math.degToRad(0)));
+    this.p1.applyMatrix(new THREE.Matrix4().makeRotationY(THREE.Math.degToRad(90)));
+    this.p1.applyMatrix(new THREE.Matrix4().makeRotationZ(THREE.Math.degToRad(-90)));
+
+    // p2
+    this.p2 = document.querySelector("#p2").object3D;
+    this.p2.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0)); // translate
+    this.p2.applyMatrix(new THREE.Matrix4().makeRotationX(THREE.Math.degToRad(180)));
+    this.p2.applyMatrix(new THREE.Matrix4().makeRotationY(THREE.Math.degToRad(90)));
+    this.p2.applyMatrix(new THREE.Matrix4().makeRotationZ(THREE.Math.degToRad(0)));
+
+    // p3
+    this.p3 = document.querySelector("#p3").object3D;
+    this.p3.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0)); // translate
+    this.p3.applyMatrix(new THREE.Matrix4().makeRotationX(THREE.Math.degToRad(0)));
+    this.p3.applyMatrix(new THREE.Matrix4().makeRotationY(THREE.Math.degToRad(90)));
+    this.p3.applyMatrix(new THREE.Matrix4().makeRotationZ(THREE.Math.degToRad(0)));
+
+    // p4
+    this.p4 = document.querySelector("#p4").object3D;
+    this.p4.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0)); // translate
+    this.p4.applyMatrix(new THREE.Matrix4().makeRotationX(THREE.Math.degToRad(0)));
+    this.p4.applyMatrix(new THREE.Matrix4().makeRotationY(THREE.Math.degToRad(180)));
+    this.p4.applyMatrix(new THREE.Matrix4().makeRotationZ(THREE.Math.degToRad(-90)));
+
+    // p5
+    this.p5 = document.querySelector("#p5").object3D;
+    this.p5.applyMatrix(new THREE.Matrix4().makeTranslation(0, 0, 0)); // translate
+    this.p5.applyMatrix(new THREE.Matrix4().makeRotationX(THREE.Math.degToRad(0)));
+    this.p5.applyMatrix(new THREE.Matrix4().makeRotationY(THREE.Math.degToRad(-90)));
+    this.p5.applyMatrix(new THREE.Matrix4().makeRotationZ(THREE.Math.degToRad(-90)));
+
+    // Apply transformations to the sceneRoot
+    this.sceneRoot.applyMatrix(new THREE.Matrix4().makeTranslation(0, -1, 0)); // translate
+    // this.sceneRoot.applyMatrix(new THREE.Matrix4().makeRotationX(THREE.Math.degToRad(0))); // rotate x
+
+  },
+
+  tick: function (time, deltaTime) {
+    if (marker_visible["m0"]) {
+      this.sceneRoot.parent = this.p0;
+      this.sceneRoot.visible = true;
+    } else if (marker_visible["m1"]) {
+      this.sceneRoot.parent = this.p1;
+      this.sceneRoot.visible = true;
+    } else if (marker_visible["m2"]) {
+      this.sceneRoot.parent = this.p2;
+      this.sceneRoot.visible = true;
+    } else if (marker_visible["m3"]) {
+      this.sceneRoot.parent = this.p3;
+      this.sceneRoot.visible = true;
+    } else if (marker_visible["m4"]) {
+      this.sceneRoot.parent = this.p4;
+      this.sceneRoot.visible = true;
+    } else if (marker_visible["m5"]) {
+      this.sceneRoot.parent = this.p5;
+      this.sceneRoot.visible = true;
+    } else {
+      this.sceneRoot.visible = false; // Hide the model if no marker is detected
+    }
+  }
+});
+      
+  AFRAME.registerComponent("look-at-target", {
+    tick: function () {
+      const thisObject = this.el.object3D;
+      const targetObject = document.querySelector("#target").object3D; //Camera
+      const vec = new THREE.Vector3();
+      targetObject.getWorldPosition(vec);
+      thisObject.lookAt(vec);
+    }
+  });
+
+
+      
+    
+
+    </script>
+  </head>
+  <body style="margin: 0px; overflow: hidden">
+    <!-- A-Frame is built on top of Three.js. All a-frame elements are Three's object3D,
+         but A-Frame does not include AR.js components by default. 
+         We also want to hide the VR UI. -->
+
+    <a-scene
+      embedded
+      arjs="sourceType: webcam; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+      vr-mode-ui="enabled: false;"
+    >
+      <a-asset>
+        <a-asset-item
+          id="brain"
+          src="assets/brain_project.glb"
+        ></a-asset-item>
+      </a-asset>
+      <!-- src="https://cdn.glitch.global/1ed72956-88f1-4eb0-a77a-e898443e3fc8/brain_project.glb?v=1689611928662" -->
+      <!-- Code here -->
+      
+      
+      <a-marker type="barcode" value="0" id="m0" marker-events smooth="true">
+        <a-entity id="p0"></a-entity>
+        
+        <!-- label -->
+       <a-entity position="0 1.5 -1.5">
+          <!-- billboard -->
+          <a-entity look-at-target>
+            <a-plane
+              color="#000000"
+              opacity="0.8"
+              height="0.3"
+              width="1.5"
+              position="0.2 0 0"
+            >
+              <a-text value="Occipital lobe" position="-0.7 0 0.1"></a-text>
+            </a-plane>
+            
+          </a-entity>
+          <!-- black line  -->
+          <a-entity rotation="-60 20 0">
+            <a-cylinder
+              color="#000000"
+              opacity="0.4"
+              radius="0.03"
+              height="1.2"
+              segments-height="2"
+              segments-radial="6"
+              position="0 -0.8 0"
+            ></a-cylinder>
+          </a-entity>
+        </a-entity>
+        
+        
+        <!-- label -->
+       <a-entity position="-1 1.5 0.3">
+          <!-- billboard -->
+          <a-entity look-at-target>
+            <a-plane
+              color="#000000"
+              opacity="0.8"
+              height="0.3"
+              width="1.5"
+              position="0.2 0 0"
+            >
+              <a-text value="Temporal lobe" position="-0.7 0 0.1"></a-text>
+            </a-plane>
+            
+          </a-entity>
+          <!-- black line  -->
+          <a-entity rotation="-30 50 20">
+            <a-cylinder
+              color="#000000"
+              opacity="0.4"
+              radius="0.03"
+              height="1.2"
+              segments-height="2"
+              segments-radial="6"
+              position="0 -0.8 0"
+            ></a-cylinder>
+          </a-entity>
+        </a-entity>
+        
+        <!-- label -->
+       <a-entity position="1.3 0.7 -1.5">
+          <!-- billboard -->
+          <a-entity look-at-target>
+            <a-plane
+              color="#000000"
+              opacity="0.8"
+              height="0.3"
+              width="1.6"
+              position="0.2 0 0"
+            >
+              <a-text value="Parietal lobe" position="-0.6 0 0.1"></a-text>
+            </a-plane>
+            
+          </a-entity>
+          <!-- black line  -->
+          <a-entity rotation="-60 10 -50">
+            <a-cylinder
+              color="#000000"
+              opacity="0.4"
+              radius="0.03"
+              height="1.2"
+              segments-height="2"
+              segments-radial="6"
+              position="0 -0.8 0"
+            ></a-cylinder>
+          </a-entity>
+        </a-entity>
+        
+        <!-- label -->
+       <a-entity position="-0.1 0.3 1.9">
+          <!-- billboard -->
+          <a-entity look-at-target>
+            <a-plane
+              color="#000000"
+              opacity="0.8"
+              height="0.3"
+              width="1.3"
+              position="0.2 0 0"
+            >
+              <a-text value="Frontal lobe" position="-0.6 0 0.1"></a-text>
+            </a-plane>
+            
+          </a-entity>
+          <!-- black line  -->
+          <a-entity rotation="60 -100 -50">
+            <a-cylinder
+              color="#000000"
+              opacity="0.4"
+              radius="0.03"
+              height="1.2"
+              segments-height="2"
+              segments-radial="6"
+              position="0 -0.8 0"
+            ></a-cylinder>
+          </a-entity>
+        </a-entity>
+        
+      </a-marker>
+      
+       <a-marker type="barcode" value="1" id="m1" marker-events smooth="true">
+        <a-entity id="p1"></a-entity>
+         
+          <!-- label -->
+       <a-entity position="0.3 1.5 -1.9">
+          <!-- billboard -->
+          <a-entity look-at-target>
+            <a-plane
+              color="#000000"
+              opacity="0.8"
+              height="0.3"
+              width="1.5"
+              position="0.2 0 0"
+            >
+              <a-text value="Frontal lobe" position="-0.6 0 0.9"></a-text>
+            </a-plane>
+            
+          </a-entity>
+          <!-- black line  -->
+          <a-entity rotation="-60 20 0">
+            <a-cylinder
+              color="#000000"
+              opacity="0.4"
+              radius="0.03"
+              height="1.2"
+              segments-height="2"
+              segments-radial="6"
+              position="0 -0.8 0"
+            ></a-cylinder>
+          </a-entity>
+        </a-entity>
+         
+            <!-- label -->
+       <a-entity position="-0.1 1.5 1.5">
+          <!-- billboard -->
+          <a-entity look-at-target>
+            <a-plane
+              color="#000000"
+              opacity="0.8"
+              height="0.3"
+              width="1.5"
+              position="0.2 0 0"
+            >
+              <a-text value="Occipital lobe" position="-0.7 0 0.1"></a-text>
+            </a-plane>
+            
+          </a-entity>
+          <!-- black line  -->
+          <a-entity rotation="30 30 30">
+            <a-cylinder
+              color="#000000"
+              opacity="0.4"
+              radius="0.03"
+              height="1.2"
+              segments-height="2"
+              segments-radial="6"
+              position="0 -0.8 0"
+            ></a-cylinder>
+          </a-entity>
+        </a-entity>
+         
+         
+         <!-- label -->
+       <a-entity position="-0.9 1.5 1.5">
+          <!-- billboard -->
+          <a-entity look-at-target>
+            <a-plane
+              color="#000000"
+              opacity="0.8"
+              height="0.3"
+              width="1.25"
+              position="0.2 0 0"
+            >
+              <a-text value="Cerebellum" position="-0.6 0 0.1"></a-text>
+            </a-plane>
+            
+          </a-entity>
+          <!-- black line  -->
+          <a-entity rotation="30 30 30">
+            <a-cylinder
+              color="#000000"
+              opacity="0.4"
+              radius="0.03"
+              height="1.2"
+              segments-height="2"
+              segments-radial="6"
+              position="0 -0.8 0"
+            ></a-cylinder>
+          </a-entity>
+        </a-entity>
+         
+         
+            <!-- label -->
+       <a-entity position="-0.65 1.5 -1.5">
+          <!-- billboard -->
+          <a-entity look-at-target>
+            <a-plane
+              color="#000000"
+              opacity="0.8"
+              height="0.3"
+              width="1.3"
+              position="0.2 -0.2 0"
+            >
+              <a-text value="Spinal cord" position="-0.57 0 0.1"></a-text>
+            </a-plane>
+            
+          </a-entity>
+          <!-- black line  -->
+          <a-entity rotation="0 -100 30">
+            <a-cylinder
+              color="#000000"
+              opacity="0.4"
+              radius="0.03"
+              height="1.2"
+              segments-height="2"
+              segments-radial="6"
+              position="1 -0.8 0"
+            ></a-cylinder>
+          </a-entity>
+        </a-entity>
+         
+         
+      </a-marker>
+      
+      <a-marker type="barcode" value="2" id="m2" marker-events smooth="true">
+        <a-entity id="p2"></a-entity>
+        
+        <!-- label -->
+       <a-entity position="0.3 1.5 -1.5">
+          <!-- billboard -->
+          <a-entity look-at-target>
+            <a-plane
+              color="#000000"
+              opacity="0.8"
+              height="0.3"
+              width="1.2"
+              position="0.2 0 0"
+            >
+              <a-text value="Cerebellum" position="-0.6 0 0.1"></a-text>
+            </a-plane>
+            
+          </a-entity>
+          <!-- black line  -->
+          <a-entity rotation="-60 20 0">
+            <a-cylinder
+              color="#000000"
+              opacity="0.4"
+              radius="0.03"
+              height="1.2"
+              segments-height="2"
+              segments-radial="6"
+              position="0 -0.8 0"
+            ></a-cylinder>
+          </a-entity>
+        </a-entity>
+        
+        <!-- label -->
+       <a-entity position="-1 1.5 -1.5">
+          <!-- billboard -->
+          <a-entity look-at-target>
+            <a-plane
+              color="#000000"
+              opacity="0.8"
+              height="0.3"
+              width="1.6"
+              position="0.2 0 0"
+            >
+              <a-text value="Temporal lobe" position="-0.7 0 0.1"></a-text>
+            </a-plane>
+            
+          </a-entity>
+          <!-- black line  -->
+          <a-entity rotation="-60 20 0">
+            <a-cylinder
+              color="#000000"
+              opacity="0.4"
+              radius="0.03"
+              height="1.2"
+              segments-height="2"
+              segments-radial="6"
+              position="0 -0.8 0"
+            ></a-cylinder>
+          </a-entity>
+        </a-entity>
+        
+        
+      </a-marker>
+      
+      <a-marker type="barcode" value="3" id="m3" marker-events smooth="true">
+        <a-entity id="p3"></a-entity>
+        
+        <!-- label -->
+       <a-entity position="-1 1.5 -1.5">
+          <!-- billboard -->
+          <a-entity look-at-target>
+            <a-plane
+              color="#000000"
+              opacity="0.8"
+              height="0.3"
+              width="1.3"
+              position="0.2 0 0"
+            >
+              <a-text value="Parietal lobe" position="-0.65 0 0.1"></a-text>
+            </a-plane>
+            
+          </a-entity>
+          <!-- black line  -->
+          <a-entity rotation="-60 20 0">
+            <a-cylinder
+              color="#000000"
+              opacity="0.4"
+              radius="0.03"
+              height="1.2"
+              segments-height="2"
+              segments-radial="6"
+              position="0 -0.8 0"
+            ></a-cylinder>
+          </a-entity>
+        </a-entity>
+        
+        <!-- label -->
+       <a-entity position="0.5 1.5 -1.5">
+          <!-- billboard -->
+          <a-entity look-at-target>
+            <a-plane
+              color="#000000"
+              opacity="0.8"
+              height="0.3"
+              width="1.3"
+              position="0.2 0 0"
+            >
+              <a-text value="Frontal lobe" position="-0.6 0 0.1"></a-text>
+            </a-plane>
+            
+          </a-entity>
+          <!-- black line  -->
+          <a-entity rotation="-60 20 0">
+            <a-cylinder
+              color="#000000"
+              opacity="0.4"
+              radius="0.03"
+              height="1.2"
+              segments-height="2"
+              segments-radial="6"
+              position="0 -0.8 0"
+            ></a-cylinder>
+          </a-entity>
+        </a-entity>
+        
+        
+      </a-marker>
+      
+      <a-marker type="barcode" value="4" id="m4" marker-events smooth="true">
+        <a-entity id="p4"></a-entity>
+        
+        <!-- label -->
+       <a-entity position="0 1.5 1.8">
+          <!-- billboard -->
+          <a-entity look-at-target>
+            <a-plane
+              color="#000000"
+              opacity="0.8"
+              height="0.3"
+              width="1.5"
+              position="0.2 0 0"
+            >
+              <a-text value="Occipital lobe" position="-0.7 0 0.1"></a-text>
+            </a-plane>
+            
+          </a-entity>
+          <!-- black line  -->
+          <a-entity rotation="60 20 25">
+            <a-cylinder
+              color="#000000"
+              opacity="0.4"
+              radius="0.03"
+              height="1.2"
+              segments-height="2"
+              segments-radial="6"
+              position="0 -0.8 0"
+            ></a-cylinder>
+          </a-entity>
+        </a-entity>
+        
+        
+        <!-- label -->
+       <a-entity position="-0.65 1.5 -0.5">
+          <!-- billboard -->
+          <a-entity look-at-target>
+            <a-plane
+              color="#000000"
+              opacity="0.8"
+              height="0.3"
+              width="1.5"
+              position="0.2 0 0"
+            >
+              <a-text value="Temporal lobe" position="-0.7 0 0.1"></a-text>
+            </a-plane>
+            
+          </a-entity>
+          <!-- black line  -->
+          <a-entity rotation="-30 50 20">
+            <a-cylinder
+              color="#000000"
+              opacity="0.4"
+              radius="0.03"
+              height="1.2"
+              segments-height="2"
+              segments-radial="6"
+              position="0 -0.8 0"
+            ></a-cylinder>
+          </a-entity>
+        </a-entity>
+        
+        <!-- label -->
+       <a-entity position="1.3 0.7 1.2">
+          <!-- billboard -->
+          <a-entity look-at-target>
+            <a-plane
+              color="#000000"
+              opacity="0.8"
+              height="0.3"
+              width="1.6"
+              position="0.2 0 0"
+            >
+              <a-text value="Parietal lobe" position="-0.6 0 0.1"></a-text>
+            </a-plane>
+            
+          </a-entity>
+          <!-- black line  -->
+          <a-entity rotation="60 10 -50">
+            <a-cylinder
+              color="#000000"
+              opacity="0.4"
+              radius="0.03"
+              height="1.2"
+              segments-height="2"
+              segments-radial="6"
+              position="0 -0.8 0"
+            ></a-cylinder>
+          </a-entity>
+        </a-entity>
+        
+        <!-- label -->
+       <a-entity position="0.3 1.5 -1.9">
+          <!-- billboard -->
+          <a-entity look-at-target>
+            <a-plane
+              color="#000000"
+              opacity="0.8"
+              height="0.3"
+              width="1.25"
+              position="0.2 0 0"
+            >
+              <a-text value="Frontal lobe" position="-0.6 0 0.1"></a-text>
+            </a-plane>
+            
+          </a-entity>
+          <!-- black line  -->
+          <a-entity rotation="-60 20 0">
+            <a-cylinder
+              color="#000000"
+              opacity="0.4"
+              radius="0.03"
+              height="1.2"
+              segments-height="2"
+              segments-radial="6"
+              position="0 -0.8 0"
+            ></a-cylinder>
+          </a-entity>
+        </a-entity>
+        
+      </a-marker>
+      
+      <a-marker type="barcode" value="5" id="m5" marker-events smooth="true">
+        <a-entity id="p5"></a-entity>
+        <!-- label -->
+       <a-entity position="0 1.5 -1.25">
+          <!-- billboard -->
+          <a-entity look-at-target>
+            <a-plane
+              color="#000000"
+              opacity="0.8"
+              height="0.3"
+              width="1.3"
+              position="0.2 0 0"
+            >
+              <a-text value="Frontal lobe" position="-0.6 0 0.1"></a-text>
+            </a-plane>
+            
+          </a-entity>
+          <!-- black line  -->
+          <a-entity rotation="-60 20 0">
+            <a-cylinder
+              color="#000000"
+              opacity="0.4"
+              radius="0.03"
+              height="1.2"
+              segments-height="2"
+              segments-radial="6"
+              position="0 -0.8 0"
+            ></a-cylinder>
+          </a-entity>
+        </a-entity>
+        
+        <!-- label -->
+       <a-entity position="1.3 0.3 -1.25">
+          <!-- billboard -->
+          <a-entity look-at-target>
+            <a-plane
+              color="#000000"
+              opacity="0.8"
+              height="0.3"
+              width="1.3"
+              position="0.2 0 0"
+            >
+              <a-text value="Parietal lobe" position="-0.6 0 0.1"></a-text>
+            </a-plane>
+            
+          </a-entity>
+          <!-- black line  -->
+          <a-entity rotation="-60 10 -50">
+            <a-cylinder
+              color="#000000"
+              opacity="0.4"
+              radius="0.03"
+              height="1.2"
+              segments-height="2"
+              segments-radial="6"
+              position="0 -0.8 0"
+            ></a-cylinder>
+          </a-entity>
+        </a-entity>
+        
+        <!-- label -->
+       <a-entity position="-0.5 0.3 1.5">
+          <!-- billboard -->
+          <a-entity look-at-target>
+            <a-plane
+              color="#000000"
+              opacity="0.8"
+              height="0.3"
+              width="1.6"
+              position="0.2 0 0"
+            >
+              <a-text value="Temporal lobe" position="-0.7 0 0.1"></a-text>
+            </a-plane>
+            
+          </a-entity>
+          <!-- black line  -->
+          <a-entity rotation="60 -100 -50">
+            <a-cylinder
+              color="#000000"
+              opacity="0.4"
+              radius="0.03"
+              height="1.2"
+              segments-height="2"
+              segments-radial="6"
+              position="0 -0.8 0"
+            ></a-cylinder>
+          </a-entity>
+        </a-entity>
+        
+      </a-marker>
+      
+      
+     
+      
+      
+      
+       <a-entity id="scene">
+        <a-entity
+                  gltf-model="#brain"
+                  scale="2 2 2"
+                  ></a-entity>
+      </a-entity>
+      
+      <a-entity draw-scene id="here"></a-entity>
+      <!-- Code here -->
+
+      <!-- we need the camera entity to use the webcam to detect the markers -->
+      <a-entity camera id="target"></a-entity>
+    </a-scene>
+  </body>
+</html>
